@@ -83,6 +83,9 @@ bool CACHE::handle_read(PACKET& handle_pkt)
   // vaddr to the prefetcher
   ever_seen_data |= (handle_pkt.v_address != handle_pkt.ip);
 
+  // Yuchen-added: sanity check for read entries' instr_id, ip, address, and v_address
+  std::cout << handle_pkt.instr_id << " " << handle_pkt.ip << " " << handle_pkt.address << " " << handle_pkt.v_address << std::endl;
+
   uint32_t set = get_set(handle_pkt.address);
   uint32_t way = get_way(handle_pkt.address, set);
 
