@@ -29,9 +29,8 @@ uint64_t not_found;
 
 uint64_t large_number = 0xffffffff;
 uint64_t instr_id = 0xffffffff; // Would comment out this line later
-extern string prefetch_file;
-map<uint64_t, uint64_t> voyager_predictions;
-extern map<uint64_t, uint64_t> va_ppa_mapping;
+extern std::string prefetch_file;
+std::map<uint64_t, uint64_t> preloaded_predictions;
 
 void CACHE::prefetcher_initialize() 
 {
@@ -60,23 +59,23 @@ void CACHE::prefetcher_initialize()
     filename += '.';
     filename += parts[7];
     filename += ".txt";
-    cout << "oracle filename: " << filename << endl;
+    std::cout << "oracle filename: " << filename << std::endl;
     std::ifstream infile;
-    infile.open(filename, ios::in);
+    infile.open(filename, std::ios::in);
     uint64_t a, b;
     int cnt = 0;
     while (infile >> a >> b)
     {
         if(cnt < 10)
         {
-            cout << a << " " << b << endl;
+            std::cout << a << " " << b << std::endl;
             cnt += 1;
         }
-        voyager_predictions[a] = b;
+        preloaded_predictions[a] = b;
     }
 }
 
-void CACHE::prefetcher_cache_operate(uint64_t addr, uint64_t ip, uint8_t cache_hit, uint8_t type, uint32_t metadata_in)
+uint32_t CACHE::prefetcher_cache_operate(uint64_t addr, uint64_t ip, uint8_t cache_hit, uint8_t type, uint32_t metadata_in)
 {
     // only look at cache miss stream
 
@@ -87,10 +86,10 @@ void CACHE::prefetcher_cache_operate(uint64_t addr, uint64_t ip, uint8_t cache_h
     if(warmup_complete[cpu])
         total_access += 1;
 
-    if (warmup_complete[cpu] && voyager_predictions.find(instr_id) != voyager_predictions.end())
+    if (warmup_complete[cpu] && preloaded_predictions.find(instr_id) != preloaded_predictions.end())
     {
         found++;
-        uint64_t pf_addr = voyager_predictions[instr_id];
+        uint64_t pf_addr = preloaded_predictions[instr_id];
         int ret = 0;
 
         ret = prefetch_line(pf_addr, true, metadata_in);
@@ -104,10 +103,12 @@ void CACHE::prefetcher_cache_operate(uint64_t addr, uint64_t ip, uint8_t cache_h
         if(warmup_complete[cpu]) not_found++;
     }
     */
+    return metadata_in; // use it as a placeholder
 }
 
-void CACHE::prefetcher_cache_fill(uint64_t addr, uint32_t set, uint32_t way, uint8_t prefetch, uint64_t evicted_addr, uint32_t metadata_in)
+uint32_t CACHE::prefetcher_cache_fill(uint64_t addr, uint32_t set, uint32_t way, uint8_t prefetch, uint64_t evicted_addr, uint32_t metadata_in)
 {
+    return metadata_in;
 }
 
 void CACHE::prefetcher_cycle_operate() {}
@@ -115,12 +116,12 @@ void CACHE::prefetcher_cycle_operate() {}
 
 void CACHE::prefetcher_final_stats()
 {
-    cout << "Prefetcher final stats" << endl;
-    cout << "Triggers: " << total_access << endl;
-    cout << "Predictions: " << predictions << endl;
-    cout << "No predictions: " << no_prediction << endl;
-    cout << "voyager prediction found: " << found << endl;
-    cout << "voyager prediction not found: " << not_found << endl;
+    std::cout << "Prefetcher final stats" << std::endl;
+    std::cout << "Triggers: " << total_access << std::endl;
+    std::cout << "Predictions: " << predictions << std::endl;
+    std::cout << "No predictions: " << no_prediction << std::endl;
+    std::cout << "voyager prediction found: " << found << std::endl;
+    std::cout << "voyager prediction not found: " << not_found << std::endl;
 }
 
 
