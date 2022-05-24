@@ -17,6 +17,7 @@ extern std::vector<std::reference_wrapper<O3_CPU>> ooo_cpu;
 extern std::vector<std::reference_wrapper<CACHE>> caches;
 extern std::vector<std::reference_wrapper<PageTableWalker>> ptws;
 extern std::vector<std::reference_wrapper<champsim::operable>> operables;
+std::string prefetch_file = " ";
 
 void init_structures();
 
@@ -52,19 +53,23 @@ int main(int argc, char** argv)
   int traces_encountered = 0;
   static struct option long_options[] = {{"warmup_instructions", required_argument, 0, 'w'},
                                          {"simulation_instructions", required_argument, 0, 'i'},
+                                         {"prefetch_file", optional_argument, nullptr, 'p'},
                                          {"hide_heartbeat", no_argument, 0, 'h'},
                                          {"cloudsuite", no_argument, 0, 'c'},
                                          {"traces", no_argument, &traces_encountered, 1},
                                          {0, 0, 0, 0}};
 
   int c;
-  while ((c = getopt_long_only(argc, argv, "w:i:hc", long_options, NULL)) != -1 && !traces_encountered) {
+  while ((c = getopt_long_only(argc, argv, "w:i:p:hc", long_options, NULL)) != -1 && !traces_encountered) {
     switch (c) {
     case 'w':
       warmup_instructions = atol(optarg);
       break;
     case 'i':
       simulation_instructions = atol(optarg);
+      break;
+    case 'p':
+      prefetch_file = std::string(optarg);
       break;
     case 'h':
       for (O3_CPU& cpu : ooo_cpu)

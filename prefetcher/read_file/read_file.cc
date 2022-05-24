@@ -34,7 +34,7 @@ std::map<uint64_t, uint64_t> preloaded_predictions;
 
 void CACHE::prefetcher_initialize() 
 {
-    printf("Voyager Prefetcher\n");
+    printf("Read-File Based Prefetcher\n");
 
     total_access = 0;
     predictions = 0;
@@ -43,36 +43,43 @@ void CACHE::prefetcher_initialize()
     not_found = 0;
     srand(0);
 
-#ifdef PC_LOCALIZATION
-    std::string filename ("/scratch/cluster/zshi17/ChampSim_prefetching/CRCRealOutput/voyager-pc/");
-#else
-    std::string filename ("/scratch/cluster/zshi17/ChampSim_prefetching/CRCRealOutput/voyager-global/");
-#endif
+// #ifdef PC_LOCALIZATION
+//     std::string filename ("/scratch/cluster/zshi17/ChampSim_prefetching/CRCRealOutput/voyager-pc/");
+// #else
+//     std::string filename ("/scratch/cluster/zshi17/ChampSim_prefetching/CRCRealOutput/voyager-global/");
+// #endif
 
-	std::string inputString(prefetch_file);
-	std::string delimiters("/.");
-	std::vector<std::string> parts;
-	boost::split(parts, inputString, boost::is_any_of(delimiters));
-    filename += parts[5];
-    filename += '.';
-    filename += parts[6];
-    filename += '.';
-    filename += parts[7];
-    filename += ".txt";
-    std::cout << "oracle filename: " << filename << std::endl;
+	// std::string inputString(prefetch_file);
+	// std::string delimiters("/.");
+	// std::vector<std::string> parts;
+	// boost::split(parts, inputString, boost::is_any_of(delimiters));
+    // filename += parts[5];
+    // filename += '.';
+    // filename += parts[6];
+    // filename += '.';
+    // filename += parts[7];
+    // filename += ".txt";
+
+    std::cout << "prefetch filename: " << prefetch_file << std::endl;
     std::ifstream infile;
-    infile.open(filename, std::ios::in);
-    uint64_t a, b;
+    infile.open(prefetch_file, std::ios::in);
+    uint64_t instr_id, prefetch_addr;
     int cnt = 0;
-    while (infile >> a >> b)
+    while (infile >> instr_id >> prefetch_addr)
     {
-        if(cnt < 10)
-        {
-            std::cout << a << " " << b << std::endl;
-            cnt += 1;
-        }
-        preloaded_predictions[a] = b;
+        // if(cnt < 10)
+        // {
+        //     std::cout << instr_id << " " << prefetch_addr << std::endl;
+        //     cnt += 1;
+        // }
+        preloaded_predictions[instr_id] = prefetch_addr;
     }
+
+    std::map<uint64_t, uint64_t>::iterator it;
+    for (it = preloaded_predictions.begin(); it != preloaded_predictions.end(); it++){
+        std::cout << it->first << " " << it->second << std::endl;
+    }
+
 }
 
 uint32_t CACHE::prefetcher_cache_operate(uint64_t addr, uint64_t ip, uint8_t cache_hit, uint8_t type, uint32_t metadata_in)
