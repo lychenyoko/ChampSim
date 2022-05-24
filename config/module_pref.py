@@ -42,10 +42,10 @@ def get_pref_string(pref_data):
     retval += '\n}\n'
     retval += '\n'
 
-    retval += '\n'.join('uint32_t {prefetcher_cache_operate}(uint64_t, uint64_t, uint8_t, uint8_t, uint32_t);'.format(**p) for p in pref_data.values() if not p['prefetcher_cache_operate'].startswith('ooo_cpu'))
-    retval += '\nuint32_t impl_prefetcher_cache_operate(uint64_t addr, uint64_t ip, uint8_t cache_hit, uint8_t type, uint32_t metadata_in)\n{\n    '
+    retval += '\n'.join('uint32_t {prefetcher_cache_operate}(uint64_t, uint64_t, uint64_t, uint8_t, uint8_t, uint32_t);'.format(**p) for p in pref_data.values() if not p['prefetcher_cache_operate'].startswith('ooo_cpu'))
+    retval += '\nuint32_t impl_prefetcher_cache_operate(uint64_t addr, uint64_t ip, uint64_t instr_id, uint8_t cache_hit, uint8_t type, uint32_t metadata_in)\n{\n    '
     retval += 'uint32_t result = 0;\n'
-    retval += '\n    '.join('if (pref_type[lg2(p{})]) result ^= {prefetcher_cache_operate}(addr, ip, cache_hit, type, metadata_in);\n'.format(k,**p) for k,p in pref_data.items())
+    retval += '\n    '.join('if (pref_type[lg2(p{})]) result ^= {prefetcher_cache_operate}(addr, ip, instr_id, cache_hit, type, metadata_in);\n'.format(k,**p) for k,p in pref_data.items())
     retval += '    return result;'
     retval += '\n}\n'
     retval += '\n'

@@ -128,7 +128,7 @@ void CACHE::readlike_hit(std::size_t set, std::size_t way, const PACKET& handle_
   // update prefetcher on load instruction
   if (should_activate_prefetcher(handle_pkt)) {
     uint64_t pf_base_addr = (virtual_prefetch ? handle_pkt.v_address : handle_pkt.address) & ~bitmask(match_offset_bits ? 0 : OFFSET_BITS);
-    hit_block.pf_metadata = impl_prefetcher_cache_operate(pf_base_addr, handle_pkt.ip, 1, handle_pkt.type, handle_pkt.pf_metadata);
+    hit_block.pf_metadata = impl_prefetcher_cache_operate(pf_base_addr, handle_pkt.ip, handle_pkt.instr_id, 1, handle_pkt.type, handle_pkt.pf_metadata);
   }
 
   // update replacement policy
@@ -220,7 +220,7 @@ bool CACHE::readlike_miss(const PACKET& handle_pkt)
   // update prefetcher on load instructions and prefetches from upper levels
   if (should_activate_prefetcher(handle_pkt)) {
     uint64_t pf_base_addr = (virtual_prefetch ? handle_pkt.v_address : handle_pkt.address) & ~bitmask(match_offset_bits ? 0 : OFFSET_BITS);
-    mshr_entry->pf_metadata = impl_prefetcher_cache_operate(pf_base_addr, handle_pkt.ip, 0, handle_pkt.type, handle_pkt.pf_metadata);
+    mshr_entry->pf_metadata = impl_prefetcher_cache_operate(pf_base_addr, handle_pkt.ip, handle_pkt.instr_id, 0, handle_pkt.type, handle_pkt.pf_metadata);
   }
 
   return true;
