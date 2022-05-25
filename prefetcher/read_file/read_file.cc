@@ -34,7 +34,7 @@ std::map<uint64_t, uint64_t> preloaded_predictions;
 
 void CACHE::prefetcher_initialize() 
 {
-    printf("Read-File Based Prefetcher\n");
+    std::cout << NAME << " Read-File Based Prefetcher" << std::endl; 
 
     total_access = 0;
     predictions = 0;
@@ -65,20 +65,23 @@ void CACHE::prefetcher_initialize()
     infile.open(prefetch_file, std::ios::in);
     uint64_t instr_id, prefetch_addr;
     int cnt = 0;
+    
+    printf("Printing first 10 prefetch lines: \n");
+
     while (infile >> instr_id >> prefetch_addr)
     {
-        // if(cnt < 10)
-        // {
-        //     std::cout << instr_id << " " << prefetch_addr << std::endl;
-        //     cnt += 1;
-        // }
+        if(cnt < 10)
+        {
+            std::cout << instr_id << " " << prefetch_addr << std::endl;
+            cnt += 1;
+        }
         preloaded_predictions[instr_id] = prefetch_addr;
     }
 
-    std::map<uint64_t, uint64_t>::iterator it;
-    for (it = preloaded_predictions.begin(); it != preloaded_predictions.end(); it++){
-        std::cout << it->first << " " << it->second << std::endl;
-    }
+    // std::map<uint64_t, uint64_t>::iterator it;
+    // for (it = preloaded_predictions.begin(); it != preloaded_predictions.end(); it++){
+    //     std::cout << it->first << " " << it->second << std::endl;
+    // }
 
 }
 
@@ -86,30 +89,40 @@ uint32_t CACHE::prefetcher_cache_operate(uint64_t addr, uint64_t ip, uint64_t in
 {
     // only look at cache miss stream
 
-    /*
-    if (type != LOAD || cache_hit)
-        return;
+    
+    //if (type != LOAD || cache_hit)
+    //    return;
 
-    if(warmup_complete[cpu])
-        total_access += 1;
+    //if(warmup_complete[cpu])
+    //    total_access += 1;
 
-    if (warmup_complete[cpu] && preloaded_predictions.find(instr_id) != preloaded_predictions.end())
-    {
+    //if (warmup_complete[cpu] && preloaded_predictions.find(instr_id) != preloaded_predictions.end())
+    //{
+    //    found++;
+    //    uint64_t pf_addr = preloaded_predictions[instr_id];
+    //    int ret = 0;
+
+    //    ret = prefetch_line(pf_addr, true, metadata_in);
+
+    //    if(ret == 1)
+    //    {
+    //        if(warmup_complete[cpu]) predictions++;
+    //    }
+    //}
+    //else{
+    //    if(warmup_complete[cpu]) not_found++;
+    //}
+    //
+
+    if (preloaded_predictions.find(instr_id) != preloaded_predictions.end()){
         found++;
-        uint64_t pf_addr = preloaded_predictions[instr_id];
-        int ret = 0;
-
-        ret = prefetch_line(pf_addr, true, metadata_in);
-
-        if(ret == 1)
-        {
-            if(warmup_complete[cpu]) predictions++;
-        }
+        uint64_t prefetch_addr = preloaded_predictions[instr_id];
+        prefetch_line(prefetch_addr, true, metadata_in);
     }
     else{
-        if(warmup_complete[cpu]) not_found++;
+        not_found++;    
     }
-    */
+    
     return metadata_in; // use it as a placeholder
 }
 
@@ -127,8 +140,8 @@ void CACHE::prefetcher_final_stats()
     std::cout << "Triggers: " << total_access << std::endl;
     std::cout << "Predictions: " << predictions << std::endl;
     std::cout << "No predictions: " << no_prediction << std::endl;
-    std::cout << "voyager prediction found: " << found << std::endl;
-    std::cout << "voyager prediction not found: " << not_found << std::endl;
+    std::cout << "Read-file prediction found: " << found << std::endl;
+    std::cout << "Read-file prediction not found: " << not_found << std::endl;
 }
 
 
