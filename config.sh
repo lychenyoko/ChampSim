@@ -625,9 +625,9 @@ with open('inc/cache_modules.inc', 'wt') as wfp:
     wfp.write('\n}\n')
     wfp.write('\n')
 
-    wfp.write('\n'.join('uint32_t {1}(uint64_t, uint64_t, uint8_t, uint8_t, uint32_t);'.format(*p) for p in pref_ops if not p[0].startswith('CPU_REDIRECT')))
-    wfp.write('\nuint32_t impl_prefetcher_cache_operate(uint64_t addr, uint64_t ip, uint8_t cache_hit, uint8_t type, uint32_t metadata_in)\n{\n    ')
-    pref_ops = { (n, ('ooo_cpu[cpu]->{}(addr, cache_hit, (type == PREFETCH), metadata_in)' if n.startswith('CPU_REDIRECT') else '{}(addr, ip, cache_hit, type, metadata_in)').format(f)) for n,f in pref_ops } ## modify signature for redirect
+    wfp.write('\n'.join('uint32_t {1}(uint64_t, uint64_t, uint64_t, uint8_t, uint8_t, uint32_t);'.format(*p) for p in pref_ops if not p[0].startswith('CPU_REDIRECT')))
+    wfp.write('\nuint32_t impl_prefetcher_cache_operate(uint64_t addr, uint64_t ip, uint64_t instr_id, uint8_t cache_hit, uint8_t type, uint32_t metadata_in)\n{\n    ')
+    pref_ops = { (n, ('ooo_cpu[cpu]->{}(addr, cache_hit, (type == PREFETCH), metadata_in)' if n.startswith('CPU_REDIRECT') else '{}(addr, ip, instr_id, cache_hit, type, metadata_in)').format(f)) for n,f in pref_ops } ## modify signature for redirect
     wfp.write('\n    '.join('if (pref_type == pref_t::{}) return {};'.format(*p) for p in pref_ops))
     wfp.write('\n    throw std::invalid_argument("Data prefetcher module not found");')
     wfp.write('\n}\n')
