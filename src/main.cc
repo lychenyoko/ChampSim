@@ -24,6 +24,7 @@ uint64_t warmup_instructions = 1000000, simulation_instructions = 10000000;
 
 auto start_time = time(NULL);
 
+
 // For backwards compatibility with older module source.
 champsim::deprecated_clock_cycle current_core_cycle;
 
@@ -34,6 +35,7 @@ extern std::array<CACHE*, NUM_CACHES> caches;
 extern std::array<champsim::operable*, NUM_OPERABLES> operables;
 
 std::vector<tracereader*> traces;
+std::string prefetch_file = " ";
 
 uint64_t champsim::deprecated_clock_cycle::operator[](std::size_t cpu_idx)
 {
@@ -321,19 +323,23 @@ int main(int argc, char** argv)
   int traces_encountered = 0;
   static struct option long_options[] = {{"warmup_instructions", required_argument, 0, 'w'},
                                          {"simulation_instructions", required_argument, 0, 'i'},
+                                         {"prefetch_file", optional_argument, nullptr, 'p'},
                                          {"hide_heartbeat", no_argument, 0, 'h'},
                                          {"cloudsuite", no_argument, 0, 'c'},
                                          {"traces", no_argument, &traces_encountered, 1},
                                          {0, 0, 0, 0}};
 
   int c;
-  while ((c = getopt_long_only(argc, argv, "w:i:hc", long_options, NULL)) != -1 && !traces_encountered) {
+  while ((c = getopt_long_only(argc, argv, "w:i:p:hc", long_options, NULL)) != -1 && !traces_encountered) {
     switch (c) {
     case 'w':
       warmup_instructions = atol(optarg);
       break;
     case 'i':
       simulation_instructions = atol(optarg);
+      break;
+    case 'p':
+      prefetch_file = std::string(optarg);
       break;
     case 'h':
       show_heartbeat = 0;
