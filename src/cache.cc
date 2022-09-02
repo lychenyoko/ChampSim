@@ -117,6 +117,11 @@ void CACHE::handle_read()
     // vaddr to the prefetcher
     ever_seen_data |= (handle_pkt.v_address != handle_pkt.ip);
 
+    // Yuchen-added: sanity check for read entries' instr_id, ip, address, and v_address in L1D Cache     
+    // if (NAME == "LLC"){        
+    //     std::cout << handle_pkt.instr_id << " " << handle_pkt.ip << " " << handle_pkt.address << " " << handle_pkt.v_address << std::endl;
+    // }
+
     uint32_t set = get_set(handle_pkt.address);
     uint32_t way = get_way(handle_pkt.address, set);
 
@@ -124,6 +129,11 @@ void CACHE::handle_read()
     {
       readlike_hit(set, way, handle_pkt);
     } else {
+      // Yuchen-added: print out the instruction ID of the miss address at a specific cache level
+      // if (NAME == "LLC"){
+      //     std::cout << handle_pkt.instr_id << std::endl;
+      // }      
+
       bool success = readlike_miss(handle_pkt);
       if (!success)
         return;
